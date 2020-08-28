@@ -3,8 +3,9 @@ package com.example.demo.service.impl;
 import com.documents4j.api.DocumentType;
 import com.documents4j.api.IConverter;
 import com.documents4j.job.LocalConverter;
-import com.example.demo.DemoApplication;
-import com.example.demo.FileConfig;
+import com.example.demo.common.RandomFileName;
+
+import com.example.demo.property.FileStorageProperties;
 import com.example.demo.service.DocConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,17 +23,17 @@ public class DocConverterImpl implements DocConverter {
     private static Logger logger = LoggerFactory.getLogger(DocConverterImpl.class);
 
     @Autowired
-    private FileConfig fileConfig;
+    private FileStorageProperties fileStorageProperties;
 
     @Override
-    public void fileConverter() throws NullPointerException, IOException, InterruptedException, ExecutionException {
+    public void fileConverter(String fileName, String outputName) throws NullPointerException, IOException, InterruptedException, ExecutionException {
         ByteArrayOutputStream bo = new ByteArrayOutputStream();
 
         logger.info("++++++++++++++");
-        logger.info(fileConfig.getDir() + File.separator + fileConfig.getInput());
-        InputStream in = new BufferedInputStream(new FileInputStream(fileConfig.getDir() + File.separator + fileConfig.getInput()));
+        logger.info(fileStorageProperties.getUploadDir() + File.separator + fileName);
+        InputStream in = new BufferedInputStream(new FileInputStream(fileStorageProperties.getUploadDir() + File.separator + fileName));
         IConverter converter = LocalConverter.builder()
-                .baseFolder(new File(fileConfig.getDir() + File.separator + "test"))
+                .baseFolder(new File(fileStorageProperties.getUploadDir() + File.separator + "test"))
                 .workerPool(20, 25, 2, TimeUnit.SECONDS)
                 .processTimeout(5, TimeUnit.SECONDS)
                 .build();
@@ -43,7 +44,8 @@ public class DocConverterImpl implements DocConverter {
                 .prioritizeWith(1000) // optional
                 .schedule();
         conversion.get();
-        try (OutputStream outputStream = new FileOutputStream(fileConfig.getOutput())) {
+
+        try (OutputStream outputStream = new FileOutputStream(fileStorageProperties.getDownloadDir() + File.separator + outputName)) {
             bo.writeTo(outputStream);
         }
         in.close();

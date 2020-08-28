@@ -8,5 +8,5 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 public interface DocConverter {
-    void fileConverter() throws NullPointerException, IOException, InterruptedException, ExecutionException, FileNotFoundException;
+    void fileConverter(String fileName, String outputName) throws NullPointerException, IOException, InterruptedException, ExecutionException, FileNotFoundException;
 }
